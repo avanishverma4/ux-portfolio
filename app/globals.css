@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #282828;
+  --color-paper: #f9f6ef;
+  --color-cobalt: #193497;
+  --color-pink-eraser: #eda398;
+
+  /* Card tints — ~10-15% saturation of each brand colour */
+  --color-ink-tint: #e5e2db;
+  --color-cobalt-tint: #dde3f5;
+  --color-pink-tint: #f9ecea;
+
+  --font-heading: var(--font-manrope, "Manrope"), sans-serif;
+  --font-body: var(--font-manrope, "Manrope"), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a,
+button {
+  cursor: pointer;
+}
+
+body {
+  background-color: #f9f6ef;
+  color: #282828;
+  font-family: var(--font-heading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: #193497;
+  color: #f9f6ef;
+}
+
+:focus-visible {
+  outline: 2px solid #193497;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 9999;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1.25rem;
+  clip: auto;
+  white-space: normal;
+  background: #193497;
+  color: #f9f6ef;
+  border-radius: 9999px;
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 500;
+}

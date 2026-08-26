@@ -1,75 +1,323 @@
 @import "tailwindcss";
 
+/*
+ * Typography: SF Pro on Apple platforms, Google Sans everywhere else.
+ *
+ * `-apple-system` / `BlinkMacSystemFont` are the only way to reach SF Pro —
+ * it ships with macOS/iOS but is not licensed for webfont delivery, and asking
+ * for "SF Pro Text" by name misses the optical-size switch between Text and
+ * Display that the system keywords get for free. Neither keyword resolves off
+ * Apple hardware, so those clients fall through to Google Sans (self-hosted by
+ * next/font in layout.tsx). The bare 'Google Sans' after the variable covers
+ * the case where the webfont is already installed locally. `system-ui` is kept
+ * *after* it on purpose — ahead of it, Windows would take Segoe UI and never
+ * see Google Sans at all.
+ */
 @theme {
-  --color-ink: #282828;
-  --color-paper: #f9f6ef;
-  --color-cobalt: #193497;
-  --color-pink-eraser: #eda398;
+  --font-sans: -apple-system, BlinkMacSystemFont, var(--font-google-sans, 'Google Sans'),
+    'Google Sans', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+}
 
-  /* Card tints — ~10-15% saturation of each brand colour */
-  --color-ink-tint: #e5e2db;
-  --color-cobalt-tint: #dde3f5;
-  --color-pink-tint: #f9ecea;
+@layer base {
+  :root {
+    --bg-page: #fafafa;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f4f4f5;
+    --bg-subtle: #f4f4f5;
+    --border-main: #e4e4e7;
+    --border-subtle: #ececee;
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --text-muted: #64646d;
+    --text-inverse: #fafafa;
 
-  --font-heading: var(--font-manrope, "Manrope"), sans-serif;
-  --font-body: var(--font-manrope, "Manrope"), sans-serif;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    /* Accent adjusted for use as text on --bg-page (kept >= 4.5:1). */
+    --accent-text: #1469f4;
+    /* Accent adjusted for use as a solid fill, so --accent-contrast clears AA
+       on top of it. The default blue darkens; a mid-tone like amber does not. */
+    --accent-solid: #1e6ff5;
+    /* Foreground for text sitting on top of an --accent-solid fill. */
+    --accent-contrast: #ffffff;
+
+    --radius-custom: 4px;
+    --base-font-size: 16px;
+    --space-multiplier: 1;
+
+    --nav-surface: rgba(250, 250, 250, 0.85);
+  }
+
+  .dark {
+    --bg-page: #050505;
+    --bg-card: #080808;
+    --bg-card-hover: #121212;
+    --bg-subtle: #0c0c0c;
+    --border-main: rgba(255, 255, 255, 0.12);
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --text-primary: #f5f5f5;
+    --text-secondary: #a9a9a9;
+    --text-muted: #8b8b8b;
+    --text-inverse: #050505;
+
+    /* The accent clears AA on the dark page background unmodified, so it needs
+       no darkening here. Declared so the pre-hydration paint matches what
+       ThemeContext computes rather than reusing the light-theme value.
+       --accent-solid and --accent-contrast describe the fill rather than the
+       page, so they do not vary by theme and are inherited from :root. */
+    --accent-text: #3b82f6;
+
+    --nav-surface: rgba(10, 10, 12, 0.85);
+  }
 }
 
 html {
-  scroll-behavior: smooth;
-}
-
-a,
-button {
-  cursor: pointer;
+  font-size: var(--base-font-size, 16px);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  transition: font-size 0.2s ease;
+  /* No `scroll-behavior: smooth` here — Lenis owns smooth scrolling and the two
+     fight each other. The reduced-motion block below restores native scrolling. */
 }
 
 body {
-  background-color: #f9f6ef;
-  color: #282828;
-  font-family: var(--font-heading);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Site-wide dynamic border radius utilities driven by --radius-custom */
+.rounded-3xl { border-radius: calc(var(--radius-custom) * 2.5) !important; }
+.rounded-2xl { border-radius: calc(var(--radius-custom) * 2) !important; }
+.rounded-xl { border-radius: calc(var(--radius-custom) * 1.5) !important; }
+.rounded-lg { border-radius: calc(var(--radius-custom) * 1.25) !important; }
+.rounded, .rounded-md { border-radius: var(--radius-custom) !important; }
+.rounded-sm { border-radius: calc(var(--radius-custom) * 0.5) !important; }
+.rounded-xs { border-radius: calc(var(--radius-custom) * 0.25) !important; }
+
+/*
+ * Section rhythm driven by the density token.
+ *
+ * This used to be a bare `section { padding-block: ... }` rule, which every
+ * section's own `py-20` utility overrode — so the Density control did nothing.
+ * Sections now opt in with `.section-rhythm` and carry no padding utility.
+ */
+.section-rhythm {
+  padding-top: calc(5rem * var(--space-multiplier, 1));
+  padding-bottom: calc(5rem * var(--space-multiplier, 1));
+  transition: padding 0.2s ease;
+}
+
+/* Anchored sections clear the fixed header when reached via URL hash. */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-main);
+  border-radius: calc(var(--radius-custom) * 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Selection color */
 ::selection {
-  background-color: #193497;
-  color: #f9f6ef;
+  background-color: var(--accent-solid);
+  color: var(--accent-contrast);
 }
 
+/* Glassmorphism helpers */
+.glass-nav {
+  background: var(--nav-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-custom);
+}
+
+/* Dynamic radius helper class */
+.dynamic-radius {
+  border-radius: var(--radius-custom);
+}
+
+/* Custom glow utility */
+.accent-glow {
+  box-shadow: 0 0 25px -5px var(--accent);
+}
+
+/*
+ * Focus rings.
+ *
+ * Several controls carry `focus:outline-none`, which beat the old
+ * `*:focus-visible` rule and left keyboard users with no visible focus at all;
+ * `!important` guarantees this survives those utilities.
+ *
+ * No `border-radius` here. This rule is unlayered, so it outranks every
+ * Tailwind utility no matter the specificity — setting a radius squared off
+ * each `rounded-full` control (theme toggle, nav pills, swatch dots, CV button)
+ * the moment it took keyboard focus. Outlines follow the element's own radius.
+ */
 :focus-visible {
-  outline: 2px solid #193497;
-  outline-offset: 3px;
-  border-radius: 3px;
+  outline: 2px solid var(--accent-text) !important;
+  outline-offset: 2px !important;
 }
 
-/* Skip link */
+/* Keyboard-only skip link */
 .skip-link {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  left: 1rem;
+  top: -6rem;
+  z-index: 200;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-contrast);
+  background: var(--accent-solid);
+  border-radius: var(--radius-custom);
+  transition: top 0.2s ease;
 }
 
-.skip-link:focus {
-  position: fixed;
+.skip-link:focus-visible {
   top: 1rem;
-  left: 1rem;
-  z-index: 9999;
-  width: auto;
+}
+
+/* Lenis Smooth Scrolling */
+html.lenis, html.lenis body {
   height: auto;
-  padding: 0.5rem 1.25rem;
-  clip: auto;
-  white-space: normal;
-  background: #193497;
-  color: #f9f6ef;
-  border-radius: 9999px;
-  font-family: var(--font-heading);
-  font-size: 0.875rem;
-  font-weight: 500;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Respect reduced-motion preferences across the whole site. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * Print: the CV modal calls window.print(), which prints the whole document.
+ * Hide everything except the resume sheet and render it as flat black-on-white.
+ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /*
+   * The CV lives inside the page tree, not directly under <body>, so the page
+   * around it has to be collapsed rather than merely hidden: `visibility:
+   * hidden` keeps an element's box, and a 7,000px portfolio's worth of
+   * invisible boxes still paginates — which is how a one-page CV printed as
+   * ten pages, nine of them blank.
+   *
+   * `:has()` keeps the CV's ancestor chain alive while collapsing everything
+   * else, with no assumption about how deeply the modal is nested. In a browser
+   * without `:has()` support the whole rule is dropped, so the belt-and-braces
+   * visibility rule below still blanks the page.
+   */
+  body :not(:has(.print-root)):not(.print-root):not(.print-root *) {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+    box-shadow: none !important;
+  }
+
+  .print-root,
+  .print-root * {
+    visibility: visible !important;
+  }
+
+  .print-hide,
+  .print-hide * {
+    display: none !important;
+  }
+
+  /*
+   * Static, not absolute: an out-of-flow element that outgrows one sheet is
+   * clipped at the page break instead of continuing onto the next.
+   */
+  .print-root {
+    position: static !important;
+    width: 100% !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .print-sheet {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    max-height: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
 }

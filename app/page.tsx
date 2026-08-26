@@ -13,7 +13,6 @@ import { Footer } from '@/components/Footer';
 import { ResumeModal } from '@/components/ResumeModal';
 import { ScrollProgressBar } from '@/components/ScrollProgressBar';
 import { SmoothScroll } from '@/components/SmoothScroll';
-import { scrollToSection } from '@/lib/scroll';
 
 export default function Home() {
   const [resumeOpen, setResumeOpen] = useState(false);
@@ -21,13 +20,6 @@ export default function Home() {
   const openResume = useCallback(() => setResumeOpen(true), []);
   const closeResume = useCallback(() => setResumeOpen(false), []);
 
-  const scrollToSandbox = useCallback(() => {
-    // Focus the sandbox after scrolling so keyboard users land inside it.
-    scrollToSection('token-sandbox-card');
-    window.setTimeout(() => {
-      document.getElementById('accent-swatch')?.focus({ preventScroll: true });
-    }, 700);
-  }, []);
 
   return (
     // `reducedMotion="user"` makes every Motion animation honour the OS setting.
@@ -40,7 +32,7 @@ export default function Home() {
         <ScrollProgressBar />
 
         {/* Sticky Top Header */}
-        <Header onOpenResume={openResume} onOpenSandbox={scrollToSandbox} />
+        <Header onOpenResume={openResume} />
 
         {/* Main Content Area */}
         <main id="main-content" tabIndex={-1} className="relative">

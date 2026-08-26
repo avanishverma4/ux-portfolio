@@ -2,14 +2,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sun, Moon, Menu, X, Sparkles, FileText, ArrowUpRight } from 'lucide-react';
+import { Sun, Moon, Menu, X, FileText, ArrowUpRight } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { PORTFOLIO_DATA } from '@/data/portfolioData';
 import { scrollToSection } from '@/lib/scroll';
 
 interface HeaderProps {
   onOpenResume: () => void;
-  onOpenSandbox: () => void;
 }
 
 const NAV_ITEMS = [
@@ -21,7 +20,7 @@ const NAV_ITEMS = [
 
 const SECTION_IDS = ['hero', 'projects', 'experience', 'skills', 'contact'];
 
-export function Header({ onOpenResume, onOpenSandbox }: HeaderProps) {
+export function Header({ onOpenResume }: HeaderProps) {
   const { resolvedTheme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -351,19 +350,7 @@ export function Header({ onOpenResume, onOpenSandbox }: HeaderProps) {
                 })}
               </nav>
 
-              <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenSandbox();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)]"
-                >
-                  <Sparkles className="w-4 h-4" style={{ color: 'var(--accent-text)' }} aria-hidden="true" />
-                  <span>Interactive token sandbox</span>
-                </button>
-
+              <div className="pt-2 border-t border-[var(--border-subtle)]">
                 <button
                   type="button"
                   onClick={() => {

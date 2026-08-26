@@ -1,3 +1,11 @@
-/node_modules
-/.next
+node_modules/
+.next/
+coverage/
+.DS_Store
+*.log
 *.tsbuildinfo
+
+# Never commit real environment values. The example file is the exception —
+# it documents the variable names and carries no secrets.
+.env*
+!.env.example
